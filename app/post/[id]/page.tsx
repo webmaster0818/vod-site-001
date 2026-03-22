@@ -45,10 +45,21 @@ export default async function PostPage({ params }: PageProps) {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         {/* Header - 参考サイトスタイル */}
-        <header className="mb-8 pb-6 border-b-2 border-gray-200">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+        <header className="mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             {post.title}
           </h1>
+          
+          {/* 🎬 ポスター画像 / サムネイル - タイトル直下に配置 */}
+          {post.thumbnail && (
+            <figure className="mb-6">
+              <img
+                src={post.thumbnail.url}
+                alt={post.title}
+                className="w-full max-w-3xl rounded-lg shadow-md"
+              />
+            </figure>
+          )}
           
           {/* メタ情報 - シンプルに */}
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
@@ -69,21 +80,10 @@ export default async function PostPage({ params }: PageProps) {
             )}
           </div>
 
-          <p className="text-lg text-gray-700 leading-relaxed">
+          <p className="text-lg text-gray-700 leading-relaxed border-b-2 border-gray-200 pb-6">
             {post.description}
           </p>
         </header>
-
-        {/* Thumbnail - 控えめに */}
-        {post.thumbnail && (
-          <figure className="mb-8">
-            <img
-              src={post.thumbnail.url}
-              alt={post.title}
-              className="w-full max-w-2xl mx-auto rounded-lg shadow-lg"
-            />
-          </figure>
-        )}
 
         {/* VOD Services - シンプルなCTA */}
         {post.vodServices && post.vodServices.length > 0 && (
@@ -106,12 +106,33 @@ export default async function PostPage({ params }: PageProps) {
         )}
 
         {/* Content - 参考サイト風の読みやすいレイアウト */}
-        <div className="prose prose-lg max-w-none mb-10">
+        <div className="prose prose-lg max-w-none mb-6">
           <div
             className="text-gray-700 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
+
+        {/* 🔗 作品ページへのリンク - おすすめポイントの下 */}
+        {post.vodServices && post.vodServices.filter(s => s.available).length > 0 && (
+          <div className="mb-10 pb-8 border-b border-gray-200">
+            {post.vodServices.filter(s => s.available).map(service => (
+              <div key={service.fieldId} className="mb-2">
+                <a
+                  href={service.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 hover:underline font-semibold inline-flex items-center gap-1"
+                >
+                  📺 「{post.title}」{service.name}作品ページ
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
