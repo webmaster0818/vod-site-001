@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* daisyUI設定 */
+@layer base {
+  :root {
+    --background: oklch(var(--b1));
+    --foreground: oklch(var(--bc));
+  }
+}
