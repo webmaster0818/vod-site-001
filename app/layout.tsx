@@ -14,6 +14,10 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "VOD作品紹介 - あなたにぴったりの作品を見つけよう",
   description: "映画・ドラマ・アニメ・ライブ・スポーツまで、幅広いジャンルの作品を紹介。通勤時間や休日の暇つぶしに最適な作品が見つかります。",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({
