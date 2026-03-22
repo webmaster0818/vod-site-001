@@ -23,99 +23,98 @@ export default async function CategoryPage({ params }: PageProps) {
   const genres = await getGenresByCategory(category);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="min-h-screen bg-white">
       {/* Breadcrumb */}
-      <div className="text-sm breadcrumbs mb-6">
-        <ul>
-          <li><Link href="/">ホーム</Link></li>
-          <li>{category}</li>
-        </ul>
-      </div>
+      <nav className="bg-gray-50 border-b border-gray-200">
+        <div className="container mx-auto px-4 py-3 max-w-5xl">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Link href="/" className="hover:text-blue-600">ホーム</Link>
+            <span>/</span>
+            <span className="text-gray-900 font-semibold">{category}</span>
+          </div>
+        </div>
+      </nav>
 
-      {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">{category}の作品</h1>
-        <p className="text-lg text-base-content/80">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 pb-4 border-b-2 border-gray-200">
+          {category}の作品
+        </h1>
+        <p className="text-lg text-gray-700 mb-8">
           {category}の作品を紹介しています。気になる作品を見つけて、休日や通勤時間を充実させましょう。
         </p>
-      </header>
 
-      {/* Genres */}
-      {genres.length > 0 && (
-        <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">ジャンルから探す</h2>
-          <div className="flex gap-2 flex-wrap">
-            {genres.map(genre => (
-              <Link
-                key={genre}
-                href={`/category/${category}/${genre}`}
-                className="btn btn-outline"
-              >
-                {genre}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+        {/* Genres - タグ風 */}
+        {genres.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-lg font-semibold text-gray-700 mb-3">ジャンルで絞り込み</h2>
+            <div className="flex gap-2 flex-wrap">
+              {genres.map(genre => (
+                <Link
+                  key={genre}
+                  href={`/category/${category}/${genre}`}
+                  className="px-4 py-2 bg-gray-100 hover:bg-blue-100 hover:text-blue-700 text-gray-700 rounded-lg font-medium transition-colors"
+                >
+                  {genre}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Posts */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">最新の{category}作品</h2>
+        {/* Posts - リスト形式 */}
         {posts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="space-y-8">
             {posts.map(post => (
-              <Link
-                key={post.id}
-                href={`/post/${post.id}`}
-                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
-              >
-                <figure className="aspect-[16/9]">
-                  <img
-                    src={post.thumbnail?.url || '/images/placeholder.jpg'}
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                </figure>
-                <div className="card-body">
-                  <div className="flex gap-2 mb-2">
-                    <span className="badge badge-primary">{post.category}</span>
-                    <span className="badge badge-outline">{post.genre}</span>
-                  </div>
-                  <h3 className="card-title text-lg">{post.title}</h3>
-                  <p className="text-sm text-base-content/70 line-clamp-2">
-                    {post.description}
-                  </p>
-                  {post.rating && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="rating rating-sm">
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <input
-                            key={star}
-                            type="radio"
-                            className="mask mask-star-2 bg-orange-400"
-                            checked={Math.round(post.rating!) === star}
-                            readOnly
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm">{post.rating.toFixed(1)}</span>
-                    </div>
-                  )}
-                  <div className="card-actions justify-end mt-4">
-                    <span className="text-xs text-base-content/50">
+              <article key={post.id} className="border-b border-gray-200 pb-8 last:border-none">
+                <Link href={`/post/${post.id}`} className="group">
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2">
+                    {post.title}
+                  </h3>
+                  
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-4">
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
+                      {post.genre}
+                    </span>
+                    {post.rating && (
+                      <span className="flex items-center gap-1">
+                        <span className="text-yellow-500">★</span>
+                        <span className="font-semibold">{post.rating.toFixed(1)}</span>
+                      </span>
+                    )}
+                    <span className="text-gray-500">
                       {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
                     </span>
                   </div>
-                </div>
-              </Link>
+
+                  <p className="text-gray-700 leading-relaxed mb-4 line-clamp-3">
+                    {post.description}
+                  </p>
+
+                  {post.thumbnail && (
+                    <div className="w-full md:w-48 aspect-[16/9] overflow-hidden rounded-lg">
+                      <img
+                        src={post.thumbnail.url}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="mt-4">
+                    <span className="text-blue-600 group-hover:text-blue-800 font-semibold text-sm">
+                      続きを読む →
+                    </span>
+                  </div>
+                </Link>
+              </article>
             ))}
           </div>
         ) : (
-          <div className="alert">
-            <span>まだ記事がありません。</span>
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded">
+            <p className="text-yellow-800">このカテゴリの記事はまだありません。</p>
           </div>
         )}
-      </section>
-    </div>
+      </div>
+    </main>
   );
 }
