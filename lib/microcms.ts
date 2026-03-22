@@ -13,12 +13,41 @@ export const client = createClient({
   apiKey,
 });
 
+/**
+ * categoryが配列の場合は最初の要素を返す
+ */
+function normalizeCategory(category: string | string[]): string {
+  return Array.isArray(category) ? category[0] : category;
+}
+
 // 型定義
 export interface VODService {
   fieldId: string;
   name: string;
   url: string;
   available: boolean;
+}
+
+interface PostRaw {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  revisedAt: string;
+  title: string;
+  description: string;
+  category: string | string[]; // microCMSの複数選択対応
+  genre: string;
+  releaseYear?: number;
+  rating?: number;
+  thumbnail?: {
+    url: string;
+    height: number;
+    width: number;
+  };
+  content: string;
+  vodServices?: VODService[];
+  tags?: string[];
 }
 
 export interface Post {
@@ -29,7 +58,7 @@ export interface Post {
   revisedAt: string;
   title: string;
   description: string;
-  category: string;
+  category: string; // 正規化後は常に文字列
   genre: string;
   releaseYear?: number;
   rating?: number;
@@ -44,10 +73,20 @@ export interface Post {
 }
 
 export interface PostsResponse {
-  contents: Post[];
+  contents: PostRaw[];
   totalCount: number;
   offset: number;
   limit: number;
+}
+
+/**
+ * Postデータを正規化（categoryを文字列に変換）
+ */
+function normalizePost(post: PostRaw): Post {
+  return {
+    ...post,
+    category: normalizeCategory(post.category),
+  };
 }
 
 /**
@@ -62,7 +101,7 @@ export async function getAllPosts(limit: number = 100): Promise<Post[]> {
         orders: '-publishedAt',
       },
     });
-    return data.contents;
+    return data.contents.map(normalizePost);
   } catch (error) {
     console.error('microCMS API Error:', error);
     return [];
@@ -74,15 +113,16 @@ export async function getAllPosts(limit: number = 100): Promise<Post[]> {
  */
 export async function getPostsByCategory(category: string, limit: number = 100): Promise<Post[]> {
   try {
+    // categoryが配列の場合、microCMSのfiltersでcontains検索を使用
     const data = await client.get<PostsResponse>({
       endpoint: 'posts',
       queries: {
         limit,
-        filters: `category[equals]${category}`,
+        filters: `category[contains]${category}`,
         orders: '-publishedAt',
       },
     });
-    return data.contents;
+    return data.contents.map(normalizePost);
   } catch (error) {
     console.error('microCMS API Error:', error);
     return [];
@@ -94,15 +134,16 @@ export async function getPostsByCategory(category: string, limit: number = 100):
  */
 export async function getPostsByGenre(category: string, genre: string, limit: number = 100): Promise<Post[]> {
   try {
+    // categoryが配列の場合、microCMSのfiltersでcontains検索を使用
     const data = await client.get<PostsResponse>({
       endpoint: 'posts',
       queries: {
         limit,
-        filters: `category[equals]${category}[and]genre[equals]${genre}`,
+        filters: `category[contains]${category}[and]genre[equals]${genre}`,
         orders: '-publishedAt',
       },
     });
-    return data.contents;
+    return data.contents.map(normalizePost);
   } catch (error) {
     console.error('microCMS API Error:', error);
     return [];
@@ -114,11 +155,11 @@ export async function getPostsByGenre(category: string, genre: string, limit: nu
  */
 export async function getPostById(id: string): Promise<Post | null> {
   try {
-    const data = await client.get<Post>({
+    const data = await client.get<PostRaw>({
       endpoint: 'posts',
       contentId: id,
     });
-    return data;
+    return normalizePost(data);
   } catch (error) {
     console.error('microCMS API Error:', error);
     return null;
@@ -130,7 +171,7 @@ export async function getPostById(id: string): Promise<Post | null> {
  */
 export async function getAllCategories(): Promise<string[]> {
   const posts = await getAllPosts();
-  const categories = [...new Set(posts.map(post => post.category))];
+  const categories = [...new Set(posts.map(post => normalizeCategory(post.category)))];
   return categories;
 }
 
@@ -139,6 +180,6 @@ export async function getAllCategories(): Promise<string[]> {
  */
 export async function getGenresByCategory(category: string): Promise<string[]> {
   const posts = await getPostsByCategory(category);
-  const genres = [...new Set(posts.map(post => post.genre))];
+  const genres = [...new Set(posts.map(post => post.genre).filter(Boolean))];
   return genres;
 }
