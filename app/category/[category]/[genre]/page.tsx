@@ -1,8 +1,6 @@
 import { getPostsByGenre, getAllCategories, getGenresByCategory } from '@/lib/microcms';
 import Link from 'next/link';
 
-export const revalidate = 60; // 60秒ごとにISR
-
 interface PageProps {
   params: Promise<{
     category: string;

@@ -1,8 +1,6 @@
 import { getAllPosts } from '@/lib/microcms';
 import Link from 'next/link';
 
-export const revalidate = 60; // 60秒ごとにISR
-
 export default async function Home() {
   const allPosts = await getAllPosts();
   const latestPosts = allPosts.slice(0, 12);

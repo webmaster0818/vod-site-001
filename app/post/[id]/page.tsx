@@ -2,8 +2,6 @@ import { getPostById, getAllPosts } from '@/lib/microcms';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
-export const revalidate = 60; // 60秒ごとにISR
-
 interface PageProps {
   params: Promise<{
     id: string;
