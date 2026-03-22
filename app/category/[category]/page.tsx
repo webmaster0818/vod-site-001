@@ -1,5 +1,7 @@
-import { getPostsByCategory, getGenresByCategory, getAllCategories } from '@/lib/markdown';
+import { getPostsByCategory, getGenresByCategory, getAllCategories } from '@/lib/microcms';
 import Link from 'next/link';
+
+export const revalidate = 60; // 60秒ごとにISR
 
 interface PageProps {
   params: Promise<{
@@ -8,7 +10,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = getAllCategories();
+  const categories = await getAllCategories();
   return categories.map(category => ({
     category,
   }));
@@ -16,8 +18,8 @@ export async function generateStaticParams() {
 
 export default async function CategoryPage({ params }: PageProps) {
   const { category } = await params;
-  const posts = getPostsByCategory(category);
-  const genres = getGenresByCategory(category);
+  const posts = await getPostsByCategory(category);
+  const genres = await getGenresByCategory(category);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -38,20 +40,22 @@ export default async function CategoryPage({ params }: PageProps) {
       </header>
 
       {/* Genres */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">ジャンルから探す</h2>
-        <div className="flex gap-2 flex-wrap">
-          {genres.map(genre => (
-            <Link
-              key={genre}
-              href={`/category/${category}/${genre}`}
-              className="btn btn-outline"
-            >
-              {genre}
-            </Link>
-          ))}
-        </div>
-      </section>
+      {genres.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">ジャンルから探す</h2>
+          <div className="flex gap-2 flex-wrap">
+            {genres.map(genre => (
+              <Link
+                key={genre}
+                href={`/category/${category}/${genre}`}
+                className="btn btn-outline"
+              >
+                {genre}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Posts */}
       <section>
@@ -60,13 +64,13 @@ export default async function CategoryPage({ params }: PageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {posts.map(post => (
               <Link
-                key={post.slug}
-                href={`/post/${post.slug}`}
+                key={post.id}
+                href={`/post/${post.id}`}
                 className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
               >
                 <figure className="aspect-[16/9]">
                   <img
-                    src={post.thumbnail || '/images/placeholder.jpg'}
+                    src={post.thumbnail?.url || '/images/placeholder.jpg'}
                     alt={post.title}
                     className="w-full h-full object-cover"
                   />
@@ -80,20 +84,22 @@ export default async function CategoryPage({ params }: PageProps) {
                   <p className="text-sm text-base-content/70 line-clamp-2">
                     {post.description}
                   </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="rating rating-sm">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <input
-                          key={star}
-                          type="radio"
-                          className="mask mask-star-2 bg-orange-400"
-                          checked={Math.round(post.rating) === star}
-                          readOnly
-                        />
-                      ))}
+                  {post.rating && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="rating rating-sm">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <input
+                            key={star}
+                            type="radio"
+                            className="mask mask-star-2 bg-orange-400"
+                            checked={Math.round(post.rating!) === star}
+                            readOnly
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm">{post.rating.toFixed(1)}</span>
                     </div>
-                    <span className="text-sm">{post.rating.toFixed(1)}</span>
-                  </div>
+                  )}
                   <div className="card-actions justify-end mt-4">
                     <span className="text-xs text-base-content/50">
                       {new Date(post.publishedAt).toLocaleDateString('ja-JP')}

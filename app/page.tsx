@@ -1,8 +1,11 @@
-import { getAllPosts } from '@/lib/markdown';
+import { getAllPosts } from '@/lib/microcms';
 import Link from 'next/link';
 
-export default function Home() {
-  const latestPosts = getAllPosts().slice(0, 12);
+export const revalidate = 60; // 60秒ごとにISR
+
+export default async function Home() {
+  const allPosts = await getAllPosts();
+  const latestPosts = allPosts.slice(0, 12);
   const categories = ['映画', 'ドラマ', 'アニメ', 'ライブ', 'スポーツ'];
 
   return (
@@ -42,13 +45,13 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {latestPosts.map(post => (
               <Link
-                key={post.slug}
-                href={`/post/${post.slug}`}
+                key={post.id}
+                href={`/post/${post.id}`}
                 className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
               >
                 <figure className="aspect-[16/9]">
                   <img
-                    src={post.thumbnail || '/images/placeholder.jpg'}
+                    src={post.thumbnail?.url || '/images/placeholder.jpg'}
                     alt={post.title}
                     className="w-full h-full object-cover"
                   />
@@ -62,20 +65,22 @@ export default function Home() {
                   <p className="text-sm text-base-content/70 line-clamp-2">
                     {post.description}
                   </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="rating rating-sm">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <input
-                          key={star}
-                          type="radio"
-                          className="mask mask-star-2 bg-orange-400"
-                          checked={Math.round(post.rating) === star}
-                          readOnly
-                        />
-                      ))}
+                  {post.rating && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="rating rating-sm">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <input
+                            key={star}
+                            type="radio"
+                            className="mask mask-star-2 bg-orange-400"
+                            checked={Math.round(post.rating!) === star}
+                            readOnly
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm">{post.rating.toFixed(1)}</span>
                     </div>
-                    <span className="text-sm">{post.rating.toFixed(1)}</span>
-                  </div>
+                  )}
                   <div className="card-actions justify-end mt-4">
                     <span className="text-xs text-base-content/50">
                       {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
@@ -87,7 +92,7 @@ export default function Home() {
           </div>
         ) : (
           <div className="alert">
-            <span>まだ記事がありません。最初の記事を作成してください。</span>
+            <span>まだ記事がありません。microCMSで最初の記事を作成してください。</span>
           </div>
         )}
       </section>

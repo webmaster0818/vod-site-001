@@ -1,5 +1,7 @@
-import { getPostsByGenre, getAllCategories, getGenresByCategory } from '@/lib/markdown';
+import { getPostsByGenre, getAllCategories, getGenresByCategory } from '@/lib/microcms';
 import Link from 'next/link';
+
+export const revalidate = 60; // 60秒ごとにISR
 
 interface PageProps {
   params: Promise<{
@@ -9,22 +11,22 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = getAllCategories();
+  const categories = await getAllCategories();
   const paths: { category: string; genre: string }[] = [];
 
-  categories.forEach(category => {
-    const genres = getGenresByCategory(category);
+  for (const category of categories) {
+    const genres = await getGenresByCategory(category);
     genres.forEach(genre => {
       paths.push({ category, genre });
     });
-  });
+  }
 
   return paths;
 }
 
 export default async function GenrePage({ params }: PageProps) {
   const { category, genre } = await params;
-  const posts = getPostsByGenre(category, genre);
+  const posts = await getPostsByGenre(category, genre);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,13 +53,13 @@ export default async function GenrePage({ params }: PageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {posts.map(post => (
               <Link
-                key={post.slug}
-                href={`/post/${post.slug}`}
+                key={post.id}
+                href={`/post/${post.id}`}
                 className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow"
               >
                 <figure className="aspect-[16/9]">
                   <img
-                    src={post.thumbnail || '/images/placeholder.jpg'}
+                    src={post.thumbnail?.url || '/images/placeholder.jpg'}
                     alt={post.title}
                     className="w-full h-full object-cover"
                   />
@@ -71,20 +73,22 @@ export default async function GenrePage({ params }: PageProps) {
                   <p className="text-sm text-base-content/70 line-clamp-2">
                     {post.description}
                   </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="rating rating-sm">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <input
-                          key={star}
-                          type="radio"
-                          className="mask mask-star-2 bg-orange-400"
-                          checked={Math.round(post.rating) === star}
-                          readOnly
-                        />
-                      ))}
+                  {post.rating && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="rating rating-sm">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <input
+                            key={star}
+                            type="radio"
+                            className="mask mask-star-2 bg-orange-400"
+                            checked={Math.round(post.rating!) === star}
+                            readOnly
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm">{post.rating.toFixed(1)}</span>
                     </div>
-                    <span className="text-sm">{post.rating.toFixed(1)}</span>
-                  </div>
+                  )}
                   <div className="card-actions justify-end mt-4">
                     <span className="text-xs text-base-content/50">
                       {new Date(post.publishedAt).toLocaleDateString('ja-JP')}
