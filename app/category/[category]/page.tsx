@@ -8,10 +8,13 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = await getAllCategories();
-  return categories.map(category => ({
-    category,
-  }));
+  try {
+    const categories = await getAllCategories();
+    return categories.length > 0 ? categories.map(category => ({ category })) : [];
+  } catch (error) {
+    console.warn('generateStaticParams failed, returning empty array:', error);
+    return [];
+  }
 }
 
 export default async function CategoryPage({ params }: PageProps) {

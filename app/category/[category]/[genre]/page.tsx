@@ -9,17 +9,24 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const categories = await getAllCategories();
-  const paths: { category: string; genre: string }[] = [];
+  try {
+    const categories = await getAllCategories();
+    const paths: { category: string; genre: string }[] = [];
 
-  for (const category of categories) {
-    const genres = await getGenresByCategory(category);
-    genres.forEach(genre => {
-      paths.push({ category, genre });
-    });
+    for (const category of categories) {
+      const genres = await getGenresByCategory(category);
+      genres.forEach(genre => {
+        paths.push({ category, genre });
+      });
+    }
+
+    // 記事がない場合は空配列を返す
+    return paths.length > 0 ? paths : [];
+  } catch (error) {
+    console.warn('generateStaticParams failed, returning empty array:', error);
+    // エラー時は空配列を返してビルド続行
+    return [];
   }
-
-  return paths;
 }
 
 export default async function GenrePage({ params }: PageProps) {

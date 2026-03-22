@@ -9,10 +9,13 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map(post => ({
-    id: post.id,
-  }));
+  try {
+    const posts = await getAllPosts();
+    return posts.length > 0 ? posts.map(post => ({ id: post.id })) : [];
+  } catch (error) {
+    console.warn('generateStaticParams failed, returning empty array:', error);
+    return [];
+  }
 }
 
 export default async function PostPage({ params }: PageProps) {
