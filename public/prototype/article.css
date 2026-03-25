@@ -331,6 +331,33 @@
     color: #999;
 }
 
+/* 関連記事・人気記事セクション */
+.related-articles-section,
+.popular-articles-section {
+    background: #f8f9fa;
+    padding: 60px 0;
+    margin-top: 40px;
+}
+
+.popular-articles-section {
+    background: white;
+}
+
+.related-articles-section .section-title,
+.popular-articles-section .section-title {
+    font-size: 2rem;
+    margin-bottom: 40px;
+    text-align: center;
+    color: #333;
+}
+
+.related-articles-section .article-grid,
+.popular-articles-section .article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
 /* レスポンシブ */
 @media (max-width: 768px) {
     .article-header h1 {
@@ -353,5 +380,10 @@
     .movie-poster {
         max-width: 250px;
         margin: 0 auto;
+    }
+
+    .related-articles-section .article-grid,
+    .popular-articles-section .article-grid {
+        grid-template-columns: 1fr;
     }
 }
