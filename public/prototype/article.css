@@ -200,6 +200,30 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
+.poster-image {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.poster-credit {
+    font-size: 0.75rem;
+    color: #666;
+    text-align: center;
+    margin: -5px 0 5px 0;
+}
+
+.poster-credit a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.poster-credit a:hover {
+    text-decoration: underline;
+}
+
 .btn-netflix {
     display: block;
     background: #e50914;
