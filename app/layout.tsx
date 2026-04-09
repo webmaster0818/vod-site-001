@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   title: "VOD作品紹介 - あなたにぴったりの作品を見つけよう",
   description: "映画・ドラマ・アニメ・ライブ・スポーツまで、幅広いジャンルの作品を紹介。通勤時間や休日の暇つぶしに最適な作品が見つかります。",
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
   other: {
     'Cache-Control': 'no-cache, no-store, must-revalidate',

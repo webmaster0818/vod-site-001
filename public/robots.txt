@@ -1,2 +1,4 @@
 User-agent: *
-Disallow: /
+Allow: /
+
+Sitemap: https://vod-site-minori.pages.dev/sitemap.xml
