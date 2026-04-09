@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://vod-site-minori.pages.dev/sitemap.xml
+Sitemap: https://movie-watchers.com/sitemap.xml
