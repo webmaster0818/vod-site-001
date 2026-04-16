@@ -67,10 +67,15 @@ function displayPopularArticles(articles) {
 function createArticleCard(article) {
     const card = document.createElement('article');
     card.className = 'article-card';
-    
+
+    // 画像があれば img、なければ絵文字プレースホルダー
+    const thumbnailHtml = article.image
+        ? `<img src="${article.image}" alt="${article.title}" style="width:100%;height:100%;object-fit:cover;">`
+        : `<div class="placeholder-image">${article.thumbnail}</div>`;
+
     card.innerHTML = `
         <div class="article-thumbnail">
-            <div class="placeholder-image">${article.thumbnail}</div>
+            ${thumbnailHtml}
         </div>
         <div class="article-content">
             <h3><a href="${article.url}">${article.title}</a></h3>
@@ -79,6 +84,6 @@ function createArticleCard(article) {
             </p>
         </div>
     `;
-    
+
     return card;
 }
