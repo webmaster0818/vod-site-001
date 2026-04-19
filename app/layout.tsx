@@ -37,6 +37,9 @@ export default function RootLayout({
 
   return (
     <html lang="ja" className={notoSansJP.variable}>
+      <head>
+        <meta name="google-site-verification" content="PUQeeaUynOCmja3CPK12o0Fpjl-qDcdmL3mmqK91_kA" />
+      </head>
       <body className="min-h-screen flex flex-col bg-white text-gray-900">
         {/* Header - シンプルなデザイン */}
         <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
