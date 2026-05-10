@@ -90,18 +90,32 @@ export default async function PostPage({ params }: PageProps) {
           <div className="bg-blue-50 border-l-4 border-blue-600 p-6 mb-8 rounded">
             <h3 className="font-bold text-lg text-gray-900 mb-3">この作品を視聴できるサービス</h3>
             <div className="flex gap-3 flex-wrap">
-              {post.vodServices.filter(s => s.available).map(service => (
-                <a
-                  key={service.fieldId}
-                  href={service.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm"
-                >
-                  {service.name}で視聴
-                </a>
-              ))}
+              {post.vodServices.filter(s => s.available).map(service => {
+                const isHulu = service.name === 'Hulu' || service.name === 'hulu' || (service.url && service.url.includes('hulu'));
+                const href = isHulu ? 'https://t.afi-b.com/visit.php?a=G8792C-G371062S&p=L977753O' : service.url;
+                return (
+                  <a
+                    key={service.fieldId}
+                    href={href}
+                    target="_blank"
+                    rel={isHulu ? "noopener noreferrer nofollow" : "noopener noreferrer"}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors text-sm"
+                  >
+                    {service.name}で視聴
+                  </a>
+                );
+              })}
             </div>
+          </div>
+        )}
+
+        {/* Hulu バナー広告 */}
+        {post.vodServices && post.vodServices.some(s => s.available && (s.name === 'Hulu' || s.name === 'hulu' || (s.url && s.url.includes('hulu')))) && (
+          <div className="text-center mb-8">
+            <a href="https://t.afi-b.com/visit.php?a=G8792C-G371062S&p=L977753O" target="_blank" rel="noopener noreferrer nofollow">
+              <img src="https://www.afi-b.com/upload_image/8792-1562733444-3.jpg" width="300" height="250" alt="Hulu" className="mx-auto rounded-lg" />
+            </a>
+            <img src="https://t.afi-b.com/lead/G8792C/L977753O/G371062S" width="1" height="1" alt="" className="inline" />
           </div>
         )}
 
@@ -116,12 +130,15 @@ export default async function PostPage({ params }: PageProps) {
         {/* 🔗 作品ページへのリンク - おすすめポイントの下 */}
         {post.vodServices && post.vodServices.filter(s => s.available).length > 0 && (
           <div className="mb-10 pb-8 border-b border-gray-200">
-            {post.vodServices.filter(s => s.available).map(service => (
+            {post.vodServices.filter(s => s.available).map(service => {
+              const isHulu = service.name === 'Hulu' || service.name === 'hulu' || (service.url && service.url.includes('hulu'));
+              const href = isHulu ? 'https://t.afi-b.com/visit.php?a=G8792C-G371062S&p=L977753O' : service.url;
+              return (
               <div key={service.fieldId} className="mb-2">
                 <a
-                  href={service.url}
+                  href={href}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel={isHulu ? "noopener noreferrer nofollow" : "noopener noreferrer"}
                   className="text-blue-600 hover:text-blue-800 hover:underline font-semibold inline-flex items-center gap-1"
                 >
                   📺 「{post.title}」{service.name}作品ページ
@@ -130,7 +147,8 @@ export default async function PostPage({ params }: PageProps) {
                   </svg>
                 </a>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
