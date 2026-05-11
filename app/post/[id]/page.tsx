@@ -85,6 +85,11 @@ export default async function PostPage({ params }: PageProps) {
           </p>
         </header>
 
+        {/* プロモーション注意事項 */}
+        <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-6 text-xs text-gray-500">
+          本ページには、プロモーションが含まれています。
+        </div>
+
         {/* VOD Services - シンプルなCTA */}
         {post.vodServices && post.vodServices.length > 0 && (
           <div className="bg-blue-50 border-l-4 border-blue-600 p-6 mb-8 rounded">
